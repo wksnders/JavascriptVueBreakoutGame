@@ -1,26 +1,67 @@
-
+//single quote for default strings
+//convention to end lines;
 
 //get canvas
-//single quote for default strings
-var canvas = document.getElementById('game-canvas'); //convention to end ;
-var {width, height} = canvas;
-var context = canvas.getContext('2d');//other render context is web gl
-//dont make raw web gl
+var canvas = document.getElementById('game-canvas'); 
+var {screenWidth, screenHeight} = canvas;
+var context = canvas.getContext('2d');
+//other render context is web gl, dont make raw web gl
 
 //mdn documentation
 
-//make a box
+var isPaused = true;
+var isGameOver = false;
+
+var lives = 3;
+var highScore = 0;
+var score = 0;
+
+
+bricks = []
+paddle = nil
+ball = nil
+
+rightPressed = false
+leftPressed = false
+
 
 //listen for dom event mouse point mv
 
-//rendering loop
+
 //ms since landed on page  (float)
 var paddleX = 0;
 var paddleY = 360;
 var paddleWidth = 100;
 var paddleHeight = 10;
 var paddleXSpeed = 250;
+const paddleStart = Vector(0, 360, 0)
+const ballStart = Vector(0, 330, 0)
 
+//called once
+var onInitialize = function(){
+    //setup inputs
+    
+    //create paddle
+    
+    //create ball
+    
+    //
+    OnGameStart();
+}
+
+//called whenever the game is started or restarted
+var OnGameStart = function(){
+    //destroy bricks if exist
+
+    //CreateBricks()
+
+    //position paddle
+    //position ball
+
+    //set ball to not move yet
+}
+
+//rendering loop
 var lastTime = 0;
 var vsyncLoop = function (time) {
     //pass by val
@@ -58,3 +99,46 @@ var vsyncLoop = function (time) {
 //call it the first time
 requestAnimationFrame(vsyncLoop);
 //updates state of the page
+
+
+// -- Game setting constants
+
+
+
+
+// function Spawn(id, width, height, attributes, parent)
+    class sprite {
+        constructor(id,height,width){
+            this.id = id;
+            this.active = true;
+            this.position = Vector(0, 0, 0);
+            this.rotation = 0;
+            this.height = height;
+            this.width = width;
+            this.velocity = Vector(0, 0, 0);
+            this.angVel = 0
+        }
+        setActive(active){
+            this.active = active;
+        }
+        setPosition(position){
+            this.position = position;
+        }
+        setRotation(rotation){
+            this.rotation = rotation;
+        }
+        setSize(height,width){
+            this.height = height;
+            this.width = width;
+        }
+        Update(){
+            this.setPosition(
+                sprite.position + (deltaTime * sprite.velocity)
+            );
+            if(angVel != 0){
+                this.setRotation(
+                    sprite.rotation + (sprite.angVel * deltaTime)
+                );
+            }
+        }
+    }
