@@ -1,6 +1,6 @@
 //single quote for default strings
 //convention to end lines;
-
+//var Vector = require("vector2js");
 //get canvas
 var canvas = document.getElementById('game-canvas'); 
 var {screenWidth, screenHeight} = canvas;
@@ -8,21 +8,21 @@ var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
 //mdn documentation
-
+/*
 var isPaused = true;
 var isGameOver = false;
 
 var lives = 3;
 var highScore = 0;
-var score = 0;
+var score = 0;*/
 
 
-bricks = []
-paddle = nil
-ball = nil
+//bricks = [];
+// paddle = nil
+// ball = nil
 
-rightPressed = false
-leftPressed = false
+var rightPressed = false;
+var leftPressed = false;
 
 
 //listen for dom event mouse point mv
@@ -34,8 +34,9 @@ var paddleY = 360;
 var paddleWidth = 100;
 var paddleHeight = 10;
 var paddleXSpeed = 250;
-const paddleStart = Vector(0, 360, 0)
-const ballStart = Vector(0, 330, 0)
+/*
+const paddleStart = new Vector(0, 360)
+const ballStart = new Vector(0, 330)
 
 //called once
 var onInitialize = function(){
@@ -59,7 +60,7 @@ var OnGameStart = function(){
     //position ball
 
     //set ball to not move yet
-}
+}*/
 
 //rendering loop
 var lastTime = 0;
@@ -81,7 +82,7 @@ var vsyncLoop = function (time) {
     console.log('vsyncLoop : deltaTime',deltaTime);
 
     context.fillStyle = '#0002';
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, screenWidth, screenHeight);
 
     paddleX += paddleXSpeed * deltaTime;
     paddleX %= width;
@@ -101,44 +102,43 @@ requestAnimationFrame(vsyncLoop);
 //updates state of the page
 
 
-// -- Game setting constants
 
 
-
-
-// function Spawn(id, width, height, attributes, parent)
-    class sprite {
-        constructor(id,height,width){
-            this.id = id;
-            this.active = true;
-            this.position = Vector(0, 0, 0);
-            this.rotation = 0;
-            this.height = height;
-            this.width = width;
-            this.velocity = Vector(0, 0, 0);
-            this.angVel = 0
-        }
-        setActive(active){
-            this.active = active;
-        }
-        setPosition(position){
-            this.position = position;
-        }
-        setRotation(rotation){
-            this.rotation = rotation;
-        }
-        setSize(height,width){
-            this.height = height;
-            this.width = width;
-        }
-        Update(){
-            this.setPosition(
-                sprite.position + (deltaTime * sprite.velocity)
+/*
+class sprite {
+    constructor(id,height,width){
+        this.id = id;
+        this.active = true;
+        this.position = new Vector(0, 0);
+        this.rotation = 0;
+        this.height = height;
+        this.width = width;
+        this.velocity = new Vector(0, 0);
+        this.angVel = 0
+    }
+    setActive(active){
+        this.active = active;
+    }
+    setPosition(position){
+        this.position = position;
+    }
+    setRotation(rotation){
+        this.rotation = rotation;
+    }
+    setSize(height,width){
+        this.height = height;
+        this.width = width;
+    }
+    Update(){
+        this.setPosition(
+            sprite.position + (deltaTime * sprite.velocity)
+        );
+        if(angVel != 0){
+            this.setRotation(
+                sprite.rotation + (sprite.angVel * deltaTime)
             );
-            if(angVel != 0){
-                this.setRotation(
-                    sprite.rotation + (sprite.angVel * deltaTime)
-                );
-            }
         }
     }
+}*/
+
+
