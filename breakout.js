@@ -71,9 +71,10 @@ var paddle = new sprite('paddle',10,100);
 paddle.setPosition(paddleStartX,paddleStartY);
 paddle.velocityX = 250;
 
-const ballStartX = 0;
-const ballStartY = 330;
-var ball = new sprite('ball',20,20);
+const ballStartX = width/2;
+const ballStartY = 340;
+var ball = new sprite('ball',40,40);
+ball.setPosition(ballStartX,ballStartY);
 
 //called once
 var onInitialize = function(){
@@ -97,7 +98,7 @@ var OnGameStart = function(){
     //position paddle
     paddle.setPosition(paddleStartX,paddleStartY);
     //position ball
-    ball.setPosition(ballStartX,ballStartY)
+    ball.setPosition(ballStartX,ballStartY);
 
     //set ball to not move yet
 }
@@ -135,6 +136,19 @@ var vsyncLoop = function (time) {
         paddle.width,
         paddle.height
     );
+
+    console.log('vsyncLoop : positionX',ball.positionX);
+    console.log('vsyncLoop : positionY',ball.positionY);
+    context.beginPath();
+    context.arc(
+        ball.positionX - (ball.width/2),
+        ball.positionY,
+        ball.height/2,
+        0,
+        2 * Math.PI
+    );
+    context.fillStyle = '#FFF';
+    context.fill();
 
     //empty
 };
