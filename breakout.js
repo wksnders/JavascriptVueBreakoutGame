@@ -18,7 +18,7 @@ var context = canvas.getContext('2d');
 
 //mdn documentation
 
-var isPaused = true;
+var isPaused = false;
 var isGameOver = false;
 
 var lives = 3;
@@ -153,6 +153,9 @@ var testCollision = function(sprite1,sprite2){
 }
 
 var onUpdate = function(deltaTime){
+    if(isPaused){
+        return;
+    }
 
     ball.update(deltaTime);
     console.log('onUpdate : ball.positionX',ball.positionX);
@@ -183,9 +186,9 @@ var onUpdate = function(deltaTime){
 
 
     paddle.update(deltaTime);
-    paddle.positionX %= width;
 
     //dont let paddle go off screen
+    paddle.positionX %= width;
 
     //dont let ball go off screen at top or sides
 
@@ -243,11 +246,3 @@ var vsyncLoop = function (time) {
 //call it the first time
 requestAnimationFrame(vsyncLoop);
 //updates state of the page
-
-
-
-
-
-
-
-
