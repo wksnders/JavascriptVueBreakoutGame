@@ -51,14 +51,14 @@ class sprite {
         this.height = height;
         this.width = width;
     }
-    Update(){
+    update(deltaTime){
         this.setPosition(
-            this.positionX + (deltaTime * sprite.velocityX),
-            this.positionY + (deltaTime * sprite.velocityY)
+            this.positionX + (deltaTime * this.velocityX),
+            this.positionY + (deltaTime * this.velocityY)
         );
-        if(angVel != 0){
+        if(this.angVel != 0){
             this.setRotation(
-                sprite.rotation + (sprite.angVel * deltaTime)
+                this.rotation + (this.angVel * deltaTime)
             );
         }
     }
@@ -69,8 +69,7 @@ const paddleStartX = 0;
 const paddleStartY = 360;
 var paddle = new sprite('paddle',10,100);
 paddle.setPosition(paddleStartX,paddleStartY);
-
-var paddleXSpeed = 250;
+paddle.velocityX = 250;
 
 const ballStartX = 0;
 const ballStartY = 330;
@@ -122,10 +121,11 @@ var vsyncLoop = function (time) {
     lastTime = time;
     console.log('vsyncLoop : deltaTime',deltaTime);
 
+    //Clear old content
     context.fillStyle = '#0002';
     context.fillRect(0, 0, width, height);
 
-    paddle.positionX += paddleXSpeed * deltaTime;
+    paddle.update(deltaTime);
     paddle.positionX %= width;
 
     context.fillStyle = '#FFF';
