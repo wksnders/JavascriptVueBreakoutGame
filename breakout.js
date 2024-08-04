@@ -168,9 +168,10 @@ var createBricks = function(){
             brickStartX,
             brickStartY
         );
-        bricks.push();
+        bricks.push(brick);
     }
 }
+createBricks();
 var activateAndPositionBrick = function(brick){
     brick.setActive(true);
     brick.setPosition(
@@ -182,6 +183,7 @@ var activateAndPositionBrick = function(brick){
 var activateAndPositionBricks = function(){
     bricks.forEach(element => activateAndPositionBrick(element))
 }
+activateAndPositionBricks();
 
 var testCollision = function(sprite1,sprite2){
     var sprite1XNegative = sprite1.positionX - (sprite1.width/2)
@@ -321,6 +323,10 @@ var drawBoxSprite = function(sprite,color){
     );
 }
 
+var drawBricks = function(){
+    bricks.forEach(sprite => drawBoxSprite(sprite,'#F00'))
+}
+
 //rendering loop
 var lastTime = 0;
 var vsyncLoop = function (time) {
@@ -351,6 +357,8 @@ var vsyncLoop = function (time) {
     );
     context.fillStyle = '#FFF';
     context.fill();
+
+    drawBricks();
 };
 //call it the first time
 requestAnimationFrame(vsyncLoop);
