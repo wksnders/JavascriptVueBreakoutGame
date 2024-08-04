@@ -16,6 +16,26 @@ var {width, height} = canvas;
 var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
+var isMouseUsed = false;
+var paddleTargetXPos = 0;
+var updateMousePos = function(event){
+    console.log('updateMousePos : mouseX', event.offsetX, 'mouseY',event.offsetY);
+    paddleTargetXPos = event.offsetX % width;
+}
+
+
+var isBallStopped = true;
+var isBallStartMove = false;
+canvas.addEventListener('mousemove', updateMousePos, false);
+canvas.addEventListener("mouseenter", () => isMouseUsed = true, false);
+canvas.addEventListener("mouseleave", () => isMouseUsed = false, false);
+canvas.addEventListener("click", () => {
+    if(isBallStopped){
+        isBallStartMove = true;
+    }
+    console.log('ball Start : isBallStartMove', isBallStartMove);
+  });
+
 //mdn documentation
 
 var isPaused = false;
@@ -74,18 +94,26 @@ class sprite {
 }
 
 //ms since landed on page  (float)
-const paddleStartX = 0;
+const paddleStartX = width/2;
 const paddleStartY = 360;
 var paddle = new sprite('paddle',10,100);
-var paddleMovementPadding = 10;
+var paddleMovementPadding = 2;
 var paddleXMin = (paddle.width/2) + paddleMovementPadding;
-var paddleXMax = width/2 - paddleXMin;
+var paddleXMax = width - paddleXMin;
+var paddleSpeed = 200;
 paddle.setPosition(paddleStartX,paddleStartY);
 paddle.velocityX = 250;
 
 const ballStartX = width/2;
-const ballStartY = 340;
+const ballStartY = 333;
 var ball = new sprite('ball',40,40);
+const ballStartVelocityY = 100;
+
+//todo
+var b_minX = ball.width/2;
+var b_maxX = width - ball.width/2;
+var b_minY = 0 + ball.height/2;
+
 ball.setPosition(ballStartX,ballStartY);
 
 //called once
@@ -157,8 +185,8 @@ var onUpdate = function(deltaTime){
         return;
     }
 
-    ball.update(deltaTime);
     console.log('onUpdate : ball.positionX',ball.positionX);
+    console.log('onUpdate : paddle.positionX',paddle.positionX);
     console.log('onUpdate : ball.positionY',ball.positionY);
 
     var isBallOffScreen = false;
@@ -182,19 +210,78 @@ var onUpdate = function(deltaTime){
 
     //player input
     //paddle move left/right
+    console.log('onUpdate : isMouseUsed', isMouseUsed,);
+    if(isMouseUsed){
+        console.log('onUpdate : paddleTargetXPos', paddleTargetXPos);
+        //mouse controlled movement
+        if(paddle.positionX < paddleTargetXPos){
+            //move left
+            paddle.velocityX = paddleSpeed;
+            console.log('onUpdate : paddle.velocityX', paddle.velocityX);
+        }
+        else{
+            //move right
+            paddle.velocityX = -paddleSpeed;
+            console.log('onUpdate : paddle.velocityX', paddle.velocityX);
+
+        }
+    }
+    else{
+        //movement control without mouse
+            paddle.velocityX = paddleSpeed;
+    }
+
+
     //if ball is stopped (new life) then give it initial velocity
+    if(isBallStopped){
+        ball.positionX = paddle.positionX;
+        if(isBallStartMove){
+            ball.velocityX = paddle.velocityX;
+            ball.velocityY = ballStartVelocityY;
+            isBallStopped = false;
+            isBallStartMove = false;
+        }
+    }
 
-
+    
+    ball.update(deltaTime);
     paddle.update(deltaTime);
-
     //dont let paddle go off screen
-    paddle.positionX %= width;
+    if (paddle.positionX < paddleXMin){
+        paddle.positionX = paddleXMin;
+    }
+    else if(paddle.positionX > paddleXMax){
+        paddle.positionX = paddleXMax;
+    }
+    //dont move past mouse
+    //if(isMouseUsed )
+
 
     //dont let ball go off screen at top or sides
+    if(ball.positionX < b_minX){
+        ball.positionX = b_minX;
+        ball.velocityX = -ball.velocityX;
+    }
+    else if (ball.positionX > b_maxX){
+        ball.positionX = b_maxX
+        ball.velocityX = -ball.velocityX;
+    }
+    if(ball.positionY  < b_minY){
+        ball.positionY = b_minY;
+        ball.velocityY = -ball.velocityY;
+    }
+
 
     //ball/brick collisions
 
     //ball/paddle collision
+    if(ball.active){
+        var colliding = testCollision(paddle,ball);
+        if(colliding){
+            ball.positionY = ballStartY;
+            ball.velocityY = -ball.velocityY; //add speedup factor
+        }
+    }
     
     console.log('onUpdate : collision ball/paddle',
         testCollision(ball,paddle)
@@ -206,7 +293,7 @@ var drawBoxSprite = function(sprite,color){
     context.fillStyle = color;
     context.fillRect(
         sprite.positionX - (sprite.width/2),
-        sprite.positionY,
+        sprite.positionY - (sprite.height/2),
         sprite.width,
         sprite.height
     );
@@ -234,7 +321,7 @@ var vsyncLoop = function (time) {
     //draw ball
     context.beginPath();
     context.arc(
-        ball.positionX - (ball.width/2),
+        ball.positionX,
         ball.positionY,
         ball.height/2,
         0,
