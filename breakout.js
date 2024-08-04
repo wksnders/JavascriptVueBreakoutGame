@@ -45,9 +45,6 @@ var lives = 3;
 var highScore = 0;
 var score = 0;
 
-
-//bricks = [];
-
 var rightPressed = false;
 var leftPressed = false;
 
@@ -153,12 +150,37 @@ var gameOver = function(){
     //TODO show game over screen or victory screen
 }
 
-var createBricks = function(){
 
+var brickStartX = 10;
+var brickEndX = width;
+var brickStartY = 50;
+var brickHeight = 10;
+var brickWidth = 50;
+var bricks = new Array();
+var createBricks = function(){
+    for (let step = 0; step < 1; step++) {
+        // Runs 5 times, with values of step 0 through 4.
+        var brick = new sprite(
+            'brick'.concat(step),
+            brickHeight,brickWidth
+        );
+        brick.setPosition(
+            brickStartX,
+            brickStartY
+        );
+        bricks.push();
+    }
+}
+var activateAndPositionBrick = function(brick){
+    brick.setActive(true);
+    brick.setPosition(
+        brickStartX,
+        brickStartY
+    );
 }
 
 var activateAndPositionBricks = function(){
-
+    bricks.forEach(element => activateAndPositionBrick(element))
 }
 
 var testCollision = function(sprite1,sprite2){
