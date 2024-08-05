@@ -40,6 +40,7 @@ canvas.addEventListener("click", () => {
 
 var isPaused = false;
 var isGameOver = false;
+var isBallOffScreen = false;
 
 var lives = 3;
 var highScore = 0;
@@ -88,6 +89,10 @@ class sprite {
             );
         }
     }
+}
+
+class brick {
+
 }
 
 //ms since landed on page  (float)
@@ -155,7 +160,7 @@ var brickStartX = 10;
 var brickEndX = width;
 var brickStartY = 50;
 var brickHeight = 10;
-var brickWidth = 50;
+var brickWidth = 150;
 var bricks = new Array();
 var createBricks = function(){
     for (let step = 0; step < 1; step++) {
@@ -180,8 +185,25 @@ var activateAndPositionBrick = function(brick){
     );
 }
 
+var brickCollision = function(brick){
+    if(!brick.active || !ball.active){
+        console.log('brickCollision : brick.active',brick.active);
+        return;
+    }
+    if(!testCollision(ball,brick)){
+        console.log('brickCollision : missed collision');
+        return;
+    }
+    //TODO brick worth more than 1 point?
+    score += 1;
+    //TODO redirect ball
+
+    brick.setActive(false);
+    console.log('brickCollision : score ',score);
+}
+
 var activateAndPositionBricks = function(){
-    bricks.forEach(element => activateAndPositionBrick(element))
+    bricks.forEach(brick => activateAndPositionBrick(brick))
 }
 activateAndPositionBricks();
 
@@ -213,7 +235,6 @@ var onUpdate = function(deltaTime){
     console.log('onUpdate : paddle.positionX',paddle.positionX);
     console.log('onUpdate : ball.positionY',ball.positionY);
 
-    var isBallOffScreen = false;
     if(isBallOffScreen){
         lives -= 1;
         if(lives < 0){
@@ -232,8 +253,7 @@ var onUpdate = function(deltaTime){
         return;
     }
 
-    //player input
-    //paddle move left/right
+    //player input, paddle move left/right
     console.log('onUpdate : isMouseUsed', isMouseUsed,);
     if(isMouseUsed){
         console.log('onUpdate : paddleTargetXPos', paddleTargetXPos);
@@ -251,7 +271,7 @@ var onUpdate = function(deltaTime){
         }
     }
     else{
-        //movement control without mouse
+        //TODO movement control without mouse
             paddle.velocityX = paddleSpeed;
     }
 
@@ -297,11 +317,13 @@ var onUpdate = function(deltaTime){
 
 
     //ball/brick collisions
+    bricks.forEach(brick => brickCollision(brick))
 
     //ball/paddle collision
     if(ball.active){
         var colliding = testCollision(paddle,ball);
-        if(colliding){
+        if(colliding && ball.positionY <= paddle.positionY){
+
             ball.positionY = ballStartY;
             ball.velocityY = -ball.velocityY; //add speedup factor
         }
@@ -314,6 +336,9 @@ var onUpdate = function(deltaTime){
 }
 
 var drawBoxSprite = function(sprite,color){
+    if(!sprite.active){
+        return;
+    }
     context.fillStyle = color;
     context.fillRect(
         sprite.positionX - (sprite.width/2),
