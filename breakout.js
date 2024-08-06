@@ -91,7 +91,13 @@ class sprite {
     }
 }
 
-class brick {
+class brickSprite extends sprite{
+    constructor(id,height,width,score,row,col){
+        super(id,height,width)
+        this.score = score;
+        this.row = row;
+        this.col = col;
+    }
 
 }
 
@@ -129,7 +135,7 @@ var onInitialize = function(){
     //ball = new sprite('ball',20,20);
     //
     
-    //CreateBricks()
+    CreateBricks();
 
     OnGameStart();
 }
@@ -156,32 +162,40 @@ var gameOver = function(){
 }
 
 
-var brickStartX = 10;
-var brickEndX = width;
-var brickStartY = 50;
-var brickHeight = 10;
-var brickWidth = 150;
+var brickHeight = 20;
+var brickStartY = 50 + (brickHeight/2);
+var brickWidth = 82;
+var brickStartX = 20 + (brickWidth/2);
+var brickPaddingY = 10;
+var brickPaddingX = 15;
 var bricks = new Array();
 var createBricks = function(){
-    for (let step = 0; step < 1; step++) {
-        // Runs 5 times, with values of step 0 through 4.
-        var brick = new sprite(
-            'brick'.concat(step),
-            brickHeight,brickWidth
-        );
-        brick.setPosition(
-            brickStartX,
-            brickStartY
-        );
-        bricks.push(brick);
+    var brickScore = 1;
+    var count = 0;
+    for (let row = 0; row < 5; row++) {
+        // Runs 5 times, with values of row 0 through 4.
+        for (let col = 0; col < 5; col++) {
+            count++;
+            var brick = new brickSprite(
+                'brick'.concat(count),
+                brickHeight,
+                brickWidth,
+                brickScore,
+                row,
+                col
+            );
+            bricks.push(brick);
+        }
     }
 }
 createBricks();
 var activateAndPositionBrick = function(brick){
     brick.setActive(true);
+    var brickXPos = brickStartX + ((brickWidth + brickPaddingX) * brick.row)
+    var brickYPos = brickStartY + ((brickHeight + brickPaddingY) * brick.col)
     brick.setPosition(
-        brickStartX,
-        brickStartY
+        brickXPos,
+        brickYPos
     );
 }
 
@@ -195,7 +209,7 @@ var brickCollision = function(brick){
         return;
     }
     //TODO brick worth more than 1 point?
-    score += 1;
+    score += brick.score;
     //TODO redirect ball
 
     brick.setActive(false);
