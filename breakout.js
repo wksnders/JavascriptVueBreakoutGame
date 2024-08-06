@@ -286,7 +286,7 @@ var onUpdate = function(deltaTime){
     }
     else{
         //TODO movement control without mouse
-            paddle.velocityX = paddleSpeed;
+            //paddle.velocityX = paddleSpeed;
     }
 
 
