@@ -211,6 +211,14 @@ var brickCollision = function(brick){
     //TODO brick worth more than 1 point?
     score += brick.score;
     //TODO redirect ball
+    if(Math.abs(ball.positionX - brick.positionX) < (brick.width/2)){
+        //redirect Y
+        ball.velocityY = -ball.velocityY;
+    }
+    else{
+        //redirect X
+        ball.velocityX = -ball.velocityX;
+    }
 
     brick.setActive(false);
     console.log('brickCollision : score ',score);
