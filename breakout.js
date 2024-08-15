@@ -9,6 +9,7 @@
 // Array
 // Object
 // function
+//mdn documentation
 
 //get canvas
 var canvas = document.getElementById('game-canvas'); 
@@ -16,16 +17,66 @@ var {width, height} = canvas;
 var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
-var isMouseUsed = false;
+//game initial values ************************
+var score = 0;
+
+//game state
+var isPaused = false;
+var isGameOver = false;
+var isBallOffScreen = false;
+var isBallStopped = true;
+var isBallStartMove = false;
+
+//paddle
 var paddleTargetXPos = 0;
+var rightPressed = false;
+var leftPressed = false;
+var isMouseUsed = false;
+
+//bricks
+var bricks = new Array();
+
+//game settings
+var highScore;
+
+//bricks
+var brickHeight;
+var brickStartY;
+var brickWidth;
+var brickStartX;
+var brickPaddingY;
+var brickPaddingX;
+
+//paddle
+const paddleStartX = width/2;
+const paddleStartY = 360;
+const paddleWidth = 100;
+const paddleHeight = 10;
+var paddle;
+var paddleMovementPadding;
+var paddleXMin;
+var paddleXMaxn;
+var paddleSpeed;
+
+//ball settings
+const ballStartX = width/2;
+const ballStartY = 333;
+const ballSize = 40;
+const ballStartVelocityY = 100;
+var ball;
+
+//screen bounds
+var b_minX;
+var b_maxX;
+var b_minY;
+
+
+
+//mouse movement
 var updateMousePos = function(event){
     console.log('updateMousePos : mouseX', event.offsetX, 'mouseY',event.offsetY);
     paddleTargetXPos = event.offsetX % width;
 }
-
-
-var isBallStopped = true;
-var isBallStartMove = false;
 canvas.addEventListener('mousemove', updateMousePos, false);
 canvas.addEventListener("mouseenter", () => isMouseUsed = true, false);
 canvas.addEventListener("mouseleave", () => isMouseUsed = false, false);
@@ -34,23 +85,9 @@ canvas.addEventListener("click", () => {
         isBallStartMove = true;
     }
     console.log('ball Start : isBallStartMove', isBallStartMove);
-  });
+});
 
-//mdn documentation
-
-var isPaused = false;
-var isGameOver = false;
-var isBallOffScreen = false;
-
-var lives = 3;
-var highScore = 0;
-var score = 0;
-
-var rightPressed = false;
-var leftPressed = false;
-
-
-//listen for dom event mouse point mv
+//represents a sprite to be rendered on screen
 class sprite {
     constructor(id,height,width){
         this.id = id;
@@ -98,58 +135,6 @@ class brickSprite extends sprite{
         this.row = row;
         this.col = col;
     }
-
-}
-
-//ms since landed on page  (float)
-const paddleStartX = width/2;
-const paddleStartY = 360;
-var paddle = new sprite('paddle',10,100);
-var paddleMovementPadding = 2;
-var paddleXMin = (paddle.width/2) + paddleMovementPadding;
-var paddleXMax = width - paddleXMin;
-var paddleSpeed = 200;
-paddle.setPosition(paddleStartX,paddleStartY);
-paddle.velocityX = 250;
-
-const ballStartX = width/2;
-const ballStartY = 333;
-var ball = new sprite('ball',40,40);
-const ballStartVelocityY = 100;
-
-//todo
-var b_minX = ball.width/2;
-var b_maxX = width - ball.width/2;
-var b_minY = 0 + ball.height/2;
-
-ball.setPosition(ballStartX,ballStartY);
-
-//called once
-var onInitialize = function(){
-    //setup inputs
-    
-    //create paddle
-    //var paddle = new sprite('paddle',10,100);
-    
-    //create ball
-    //ball = new sprite('ball',20,20);
-    //
-    
-    CreateBricks();
-
-    OnGameStart();
-}
-
-//called whenever the game is started or restarted
-var OnGameStart = function(){
-    //activate and position bricks
-
-    //position paddle
-    paddle.setPosition(paddleStartX,paddleStartY);
-    //position ball
-    ball.setPosition(ballStartX,ballStartY);
-
-    //set ball to not move yet
 }
 
 var gameOver = function(){
@@ -162,13 +147,7 @@ var gameOver = function(){
 }
 
 
-var brickHeight = 20;
-var brickStartY = 50 + (brickHeight/2);
-var brickWidth = 82;
-var brickStartX = 20 + (brickWidth/2);
-var brickPaddingY = 10;
-var brickPaddingX = 15;
-var bricks = new Array();
+
 var createBricks = function(){
     var brickScore = 1;
     var count = 0;
@@ -188,7 +167,6 @@ var createBricks = function(){
         }
     }
 }
-createBricks();
 var activateAndPositionBrick = function(brick){
     brick.setActive(true);
     var brickXPos = brickStartX + ((brickWidth + brickPaddingX) * brick.row)
@@ -211,7 +189,7 @@ var brickCollision = function(brick){
     //TODO brick worth more than 1 point?
     score += brick.score;
     //TODO redirect ball
-    if(Math.abs(ball.positionX - brick.positionX) < (brick.width/2)){
+    if(Math.abs(ball.positionX - brick.positionX) < ((brick.width + ball.width)/2)){
         //redirect Y
         ball.velocityY = -ball.velocityY;
     }
@@ -376,6 +354,7 @@ var drawBricks = function(){
 
 //rendering loop
 var lastTime = 0;
+//time is ms since landed on page  (float)
 var vsyncLoop = function (time) {
 
     //schedule work for next frame
@@ -407,6 +386,65 @@ var vsyncLoop = function (time) {
 
     drawBricks();
 };
-//call it the first time
-requestAnimationFrame(vsyncLoop);
-//updates state of the page
+
+
+//called whenever the game is started or restarted
+var onGameStart = function(){
+    lives = 3;
+    //activate and position bricks
+    activateAndPositionBricks();
+    //position paddle
+    paddle.setPosition(paddleStartX,paddleStartY);
+    //position ball
+    ball.setPosition(ballStartX,ballStartY);
+
+    //set ball to not move yet
+    isBallStopped = true;
+    isBallStartMove = false;
+}
+
+//called once
+var onInitialize = function(){
+    //game settings
+    highScore = 0;
+
+    //bricks
+    brickHeight = 20;
+    brickStartY = 50 + (brickHeight/2);
+    brickWidth = 82;
+    brickStartX = 20 + (brickWidth/2);
+    brickPaddingY = 10;
+    brickPaddingX = 15;
+
+    //paddle
+    const paddleWidth = 100;
+    const paddleHeight = 10;
+    paddle = new sprite('paddle',paddleHeight,paddleWidth);
+    paddleMovementPadding = 2;
+    paddleXMin = (paddle.width/2) + paddleMovementPadding;
+    paddleXMax = width - paddleXMin;
+    paddleSpeed = 200;
+
+    //create ball sprite
+    ball = new sprite('ball',ballSize,ballSize);
+
+    
+    //screen bounds
+    b_minX = ball.width/2;
+    b_maxX = width - ball.width/2;
+    b_minY = 0 + ball.height/2;
+
+    //TODO setup inputs
+    
+    createBricks();
+
+    onGameStart();
+
+    
+    //call it the first time
+    requestAnimationFrame(vsyncLoop);
+    //updates state of the page
+}
+
+
+onInitialize();
