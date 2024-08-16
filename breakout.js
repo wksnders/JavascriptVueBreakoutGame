@@ -18,7 +18,8 @@ var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
 //game initial values ************************
-var score = 0;
+var currentScore;
+var victoryScore;
 
 //game state
 var isPaused = false;
@@ -140,10 +141,16 @@ class brickSprite extends sprite{
 var gameOver = function(){
     isPaused = true;
     GameOver = true;
-    if(score > highScore){
-        highScore = score;
+    if(currentScore > highScore){
+        highScore = currentScore;
     }
     //TODO show game over screen or victory screen
+    if(currentScore > victoryScore){
+        //victory screen
+    }
+    else{
+        //you lose!
+    }
 }
 
 
@@ -154,6 +161,7 @@ var createBricks = function(){
     for (let row = 0; row < 5; row++) {
         // Runs 5 times, with values of row 0 through 4.
         for (let col = 0; col < 5; col++) {
+            victoryScore += brickScore;
             count++;
             var brick = new brickSprite(
                 'brick'.concat(count),
@@ -187,7 +195,7 @@ var brickCollision = function(brick){
         return;
     }
     //TODO brick worth more than 1 point?
-    score += brick.score;
+    currentScore += brick.score;
     //TODO redirect ball
     if(Math.abs(ball.positionX - brick.positionX) < ((brick.width + ball.width)/2)){
         //redirect Y
@@ -199,7 +207,7 @@ var brickCollision = function(brick){
     }
 
     brick.setActive(false);
-    console.log('brickCollision : score ',score);
+    console.log('brickCollision : score ',currentScore);
 }
 
 var activateAndPositionBricks = function(){
@@ -278,7 +286,7 @@ var onUpdate = function(deltaTime){
 
     //if ball is stopped (new life) then give it initial velocity
     if(isBallStopped){
-        ball.positionX = paddle.positionX;
+        ball.positionX = paddle.positionX;//match ball and paddle
         if(isBallStartMove){
             ball.velocityX = paddle.velocityX;
             ball.velocityY = ballStartVelocityY;
@@ -298,7 +306,9 @@ var onUpdate = function(deltaTime){
         paddle.positionX = paddleXMax;
     }
     //dont move past mouse
-    //if(isMouseUsed )
+    /*if(isMouseUsed
+        && paddle.positionX
+    )*/
 
 
     //dont let ball go off screen at top or sides
@@ -390,6 +400,7 @@ var vsyncLoop = function (time) {
 
 //called whenever the game is started or restarted
 var onGameStart = function(){
+    currentScore = 0;
     lives = 3;
     //activate and position bricks
     activateAndPositionBricks();
