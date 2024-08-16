@@ -14,9 +14,26 @@
     </div>
     <!-- lowercase stuff for the web !!! -->
     <!-- dont be like that one guy -->
+    <div class="container" id="app">
+        <form @submit.prevent="submitForm">
+            <label>
+                <span class="label">brick width</span>
+                <input type="number" min="5" max="100" v-model.number="brickWidth">
+                <input type="range" min="5" max="100" v-model.number="brickWidth">
+            </label>
+            <label>
+                <span class="label">brick height</span>
+                <input type="number" min="5" max="30" v-model.number="brickHeight">
+                <input type="range" min="5" max="30" v-model.number="brickHeight">
+            </label>
+            <div>
+                <input type="submit" value="start game">
+            </div>
+        </form>
+    </div>
 
 
-
+    <script src="https://unpkg.com/vue@3/dist/vue.global.js"></script>
     <script src="./breakout.js"></script>
     <!-- script tags are blocking reading further, also has access to things b4 it 
      just put script last, then no need to do on window load stuffs-->

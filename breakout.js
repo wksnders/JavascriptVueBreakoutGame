@@ -13,7 +13,7 @@
 
 //get canvas
 var canvas = document.getElementById('game-canvas'); 
-var {width, height} = canvas;
+var {width /*: canvasWidth*/, height} = canvas;
 var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
@@ -89,7 +89,7 @@ canvas.addEventListener("click", () => {
 });
 
 //represents a sprite to be rendered on screen
-class sprite {
+class Sprite {//cap -> need to invoke it with keyword new
     constructor(id,height,width){
         this.id = id;
         this.active = true;
@@ -129,7 +129,7 @@ class sprite {
     }
 }
 
-class brickSprite extends sprite{
+class brickSprite extends Sprite{
     constructor(id,height,width,score,row,col){
         super(id,height,width)
         this.score = score;
@@ -158,6 +158,7 @@ var gameOver = function(){
 var createBricks = function(){
     var brickScore = 1;
     var count = 0;
+    bricks.length = 0; // Empty the array
     for (let row = 0; row < 5; row++) {
         // Runs 5 times, with values of row 0 through 4.
         for (let col = 0; col < 5; col++) {
@@ -199,11 +200,11 @@ var brickCollision = function(brick){
     //TODO redirect ball
     if(Math.abs(ball.positionX - brick.positionX) < ((brick.width + ball.width)/2)){
         //redirect Y
-        ball.velocityY = -ball.velocityY;
+        ball.velocityY = (-1 * ball.velocityY);
     }
     else{
         //redirect X
-        ball.velocityX = -ball.velocityX;
+        ball.velocityX = (-1 *ball.velocityX);
     }
 
     brick.setActive(false);
@@ -414,15 +415,16 @@ var onGameStart = function(){
     isBallStartMove = false;
 }
 
-//called once
-var onInitialize = function(){
+//called with config settings
+var onInitialize = function(config = {}){
     //game settings
     highScore = 0;
 
     //bricks
-    brickHeight = 20;
+    
+    brickHeight = config.brickHeight || 20;
     brickStartY = 50 + (brickHeight/2);
-    brickWidth = 82;
+    brickWidth = config.brickWidth || 80;
     brickStartX = 20 + (brickWidth/2);
     brickPaddingY = 10;
     brickPaddingX = 15;
@@ -430,14 +432,14 @@ var onInitialize = function(){
     //paddle
     const paddleWidth = 100;
     const paddleHeight = 10;
-    paddle = new sprite('paddle',paddleHeight,paddleWidth);
+    paddle = new Sprite('paddle',paddleHeight,paddleWidth);
     paddleMovementPadding = 2;
     paddleXMin = (paddle.width/2) + paddleMovementPadding;
     paddleXMax = width - paddleXMin;
     paddleSpeed = 200;
 
     //create ball sprite
-    ball = new sprite('ball',ballSize,ballSize);
+    ball = new Sprite('ball',ballSize,ballSize);
 
     
     //screen bounds
@@ -452,10 +454,32 @@ var onInitialize = function(){
     onGameStart();
 
     
-    //call it the first time
-    requestAnimationFrame(vsyncLoop);
-    //updates state of the page
 }
 
+//load from json file
+//or parse csv, colnames : values
+onInitialize({brickHeight : 20});
 
-onInitialize();
+//call it the first time
+requestAnimationFrame(vsyncLoop);
+//updates state of the page
+
+const { createApp, ref } = Vue
+
+createApp({
+    setup() {
+        const brickHeight = ref(20)
+        const brickWidth = ref(50)//observability, update template dependant on it.
+        const submitForm = function () {
+            onInitialize({
+                brickHeight : brickHeight.value,
+                brickWidth : brickWidth.value,
+            });
+        }
+        return {
+            brickHeight,
+            brickWidth,
+            submitForm
+        }
+    }
+}).mount('#app')
