@@ -244,10 +244,16 @@ var onUpdate = function(deltaTime){
     console.log('onUpdate : paddle.positionX',paddle.positionX);
     console.log('onUpdate : ball.positionY',ball.positionY);
 
+    if(ball.positionY > height){
+        isBallOffScreen = true;
+    }
+    else{
+        isBallOffScreen = false;
+    }
+
     if(isBallOffScreen){
         lives -= 1;
-        if(lives < 0){
-            //TODO gameover
+        if(lives <= 0){
             gameOver();
         }
         else{
@@ -255,7 +261,9 @@ var onUpdate = function(deltaTime){
             ball.velocityX = 0;
             ball.velocityY = 0;
             ball.setPosition(ballStartX,ballStartY);
-            //TODO ball should be stopped on the paddle until control pressed
+            //reset bools
+            isBallStartMove = false;
+            isBallStopped = true;
         }
         paddle.velocityX = 0;
         console.log('onUpdate : lost a life');
@@ -430,13 +438,15 @@ var onInitialize = function(config = {}){
     brickPaddingX = 15;
 
     //paddle
-    const paddleWidth = 100;
-    const paddleHeight = 10;
-    paddle = new Sprite('paddle',paddleHeight,paddleWidth);
-    paddleMovementPadding = 2;
+    paddle = new Sprite(
+        'paddle',
+        config.paddleHeight || 10,
+        config.paddleWidth || 100
+    );
+    paddleMovementPadding = config.paddleMovementPadding || 2;
     paddleXMin = (paddle.width/2) + paddleMovementPadding;
     paddleXMax = width - paddleXMin;
-    paddleSpeed = 200;
+    paddleSpeed = config.paddleSpeed || 200;
 
     //create ball sprite
     ball = new Sprite('ball',ballSize,ballSize);
