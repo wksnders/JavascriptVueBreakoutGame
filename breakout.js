@@ -490,7 +490,7 @@ const { createApp, ref } = Vue
 createApp({
     setup() {
         const brickHeight = ref(20)
-        const brickWidth = ref(50)//observability, update template dependant on it.
+        const brickWidth = ref(80)//observability, update template dependant on it.
         const submitForm = function () {
             onInitialize({
                 brickHeight : brickHeight.value,
