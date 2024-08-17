@@ -254,7 +254,7 @@ var onUpdate = function(deltaTime){
 
     if(isBallOffScreen){
         lives -= 1;
-        if(lives <= 0 || (currentScore >= victoryScore)){
+        if(lives <= 0){
             gameOver();
         }
         else{
@@ -341,6 +341,10 @@ var onUpdate = function(deltaTime){
     var newYVelo = (-1 * ball.velocityY);
     bricks.forEach(brick => brickCollision(brick,newXVelo,newYVelo));
 
+    if( currentScore >= victoryScore){
+        gameOver();
+    }
+
     //ball/paddle collision
     if(ball.active){
         var colliding = testCollision(paddle,ball);
@@ -393,16 +397,15 @@ function drawGameOver() {
     if (currentScore >= victoryScore) {
         //victory screen
         drawText(
-            'You Win!'.concat((highScore || 0)),
+            'You Win!',
             (canvasWidth / 2),
-            (canvasHeight / 2) + 40
+            (canvasHeight / 2) - 30
         );
         drawText(
             'Score : '.concat((currentScore || 0)),
             (canvasWidth / 2),
-            (canvasHeight / 2) - 20
+            (canvasHeight / 2) + 20
         );
-
     }
     else {
         //you lose!
