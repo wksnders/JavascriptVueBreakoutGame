@@ -140,17 +140,9 @@ class brickSprite extends Sprite{
 
 var gameOver = function(){
     isPaused = true;
-    GameOver = true;
+    isGameOver = true;
     if(currentScore > highScore){
         highScore = currentScore;
-    }
-    //TODO show game over screen or victory screen
-    if(currentScore > victoryScore){
-        //victory screen
-
-    }
-    else{
-        //you lose!
     }
 }
 
@@ -398,8 +390,40 @@ var drawBall = function(){
     }
 }
 
-var drawText = function(text,xPos,yPos){
-    context.font = "24px serif";
+function drawGameOver() {
+    if (currentScore >= victoryScore) {
+        //victory screen
+        drawText(
+            'You Win!'.concat((highScore || 0)),
+            (canvasWidth / 2),
+            (canvasHeight / 2) + 40
+        );
+        drawText(
+            'Score : '.concat((currentScore || 0)),
+            (canvasWidth / 2),
+            (canvasHeight / 2) - 20
+        );
+
+    }
+    else {
+        //you lose!
+        drawText(
+            'GAME OVER',
+            (canvasWidth / 2),
+            (canvasHeight / 2) - 40,
+            '30px serif'
+        );
+        drawText(
+            'Score : '.concat((currentScore || 0)),
+            (canvasWidth / 2),
+            (canvasHeight / 2) + 20
+        );
+    }
+}
+
+
+var drawText = function(text,xPos,yPos, font = '18px serif'){
+    context.font = font;
     context.fillStyle = '#FFF';
     context.fillText(text, xPos, yPos);
 }
@@ -422,13 +446,23 @@ var vsyncLoop = function (time) {
     context.fillStyle = '#0002';
     context.fillRect(0, 0, canvasWidth, canvasHeight);
 
+    
+    drawBricks();
+
+    if(isGameOver){
+        console.log('vsyncLoop : Game Over');
+        drawGameOver();
+        return;
+    }
+
     drawBoxSprite(paddle,'#FFF');
 
     drawBall();
 
-    drawBricks();
 
-    drawText('Score : '.concat((currentScore || 0)), 10,30);
+    drawText('Score : '.concat((currentScore || 0)), 10,20);
+    drawText('Lives : '.concat((lives || 0)), 10,40);
+    drawText('High Score : '.concat((highScore || 0)), canvasWidth - 160,20);
 };
 
 
@@ -518,5 +552,7 @@ createApp({
         }
     }
 }).mount('#app')
+
+
 
 
