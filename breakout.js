@@ -188,7 +188,6 @@ var brickCollision = function(brick,newX,newY){
     }
     //TODO brick worth more than 1 point?
     currentScore += brick.score;
-    //TODO redirect ball
     
     console.log('brickCollision : ball.positionX - brick.positionX ',
         Math.abs(ball.positionX - brick.positionX),
@@ -470,6 +469,9 @@ var vsyncLoop = function (time) {
 
 //called whenever the game is started or restarted
 var onGameStart = function(){
+    
+    isGameOver = false;
+    isPaused = false;
     currentScore = 0;
     lives = 3;
     //activate and position bricks
