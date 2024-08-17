@@ -13,7 +13,7 @@
 
 //get canvas
 var canvas = document.getElementById('game-canvas'); 
-var {width /*: canvasWidth*/, height} = canvas;
+var {width: canvasWidth, height: canvasHeight} = canvas;
 var context = canvas.getContext('2d');
 //other render context is web gl, dont make raw web gl
 
@@ -49,7 +49,7 @@ var brickPaddingY;
 var brickPaddingX;
 
 //paddle
-const paddleStartX = width/2;
+const paddleStartX = canvasWidth/2;
 const paddleStartY = 360;
 const paddleWidth = 100;
 const paddleHeight = 10;
@@ -60,7 +60,7 @@ var paddleXMaxn;
 var paddleSpeed;
 
 //ball settings
-const ballStartX = width/2;
+const ballStartX = canvasWidth/2;
 const ballStartY = 333;
 const ballSize = 40;
 const ballStartVelocityY = 100;
@@ -76,7 +76,7 @@ var b_minY;
 //mouse movement
 var updateMousePos = function(event){
     console.log('updateMousePos : mouseX', event.offsetX, 'mouseY',event.offsetY);
-    paddleTargetXPos = event.offsetX % width;
+    paddleTargetXPos = event.offsetX % canvasWidth;
 }
 canvas.addEventListener('mousemove', updateMousePos, false);
 canvas.addEventListener("mouseenter", () => isMouseUsed = true, false);
@@ -253,7 +253,7 @@ var onUpdate = function(deltaTime){
     console.log('onUpdate : paddle.positionX',paddle.positionX);
     console.log('onUpdate : ball.positionY',ball.positionY);
 
-    if(ball.positionY > height){
+    if(ball.positionY > canvasHeight){
         isBallOffScreen = true;
     }
     else{
@@ -382,6 +382,21 @@ var drawBricks = function(){
     bricks.forEach(sprite => drawBoxSprite(sprite,'#F00'))
 }
 
+var drawBall = function(){
+    if (ball.active) {
+        context.beginPath();
+        context.arc(
+            ball.positionX,
+            ball.positionY,
+            ball.height / 2,
+            0,
+            2 * Math.PI
+        );
+        context.fillStyle = '#FFF';
+        context.fill();
+    }
+}
+
 //rendering loop
 var lastTime = 0;
 //time is ms since landed on page  (float)
@@ -398,21 +413,11 @@ var vsyncLoop = function (time) {
 
     //Clear old content
     context.fillStyle = '#0002';
-    context.fillRect(0, 0, width, height);
+    context.fillRect(0, 0, canvasWidth, canvasHeight);
 
     drawBoxSprite(paddle,'#FFF');
 
-    //draw ball
-    context.beginPath();
-    context.arc(
-        ball.positionX,
-        ball.positionY,
-        ball.height/2,
-        0,
-        2 * Math.PI
-    );
-    context.fillStyle = '#FFF';
-    context.fill();
+    drawBall();
 
     drawBricks();
 };
@@ -437,7 +442,7 @@ var onGameStart = function(){
 //called with config settings
 var onInitialize = function(config = {}){
     //game settings
-    highScore = 0;
+    highScore = config.highScore || 0;
 
     //bricks
     
@@ -456,7 +461,7 @@ var onInitialize = function(config = {}){
     );
     paddleMovementPadding = config.paddleMovementPadding || 2;
     paddleXMin = (paddle.width/2) + paddleMovementPadding;
-    paddleXMax = width - paddleXMin;
+    paddleXMax = canvasWidth - paddleXMin;
     paddleSpeed = config.paddleSpeed || 200;
 
     //create ball sprite
@@ -465,7 +470,7 @@ var onInitialize = function(config = {}){
     
     //screen bounds
     b_minX = ball.width/2;
-    b_maxX = width - ball.width/2;
+    b_maxX = canvasWidth - ball.width/2;
     b_minY = 0 + ball.height/2;
 
     //TODO setup inputs
@@ -504,3 +509,5 @@ createApp({
         }
     }
 }).mount('#app')
+
+
