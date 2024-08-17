@@ -186,29 +186,38 @@ var activateAndPositionBrick = function(brick){
     );
 }
 
-var brickCollision = function(brick){
+var brickCollision = function(brick,newX,newY){
     if(!brick.active || !ball.active){
-        console.log('brickCollision : brick.active',brick.active);
-        return;
+        return false;
     }
     if(!testCollision(ball,brick)){
-        console.log('brickCollision : missed collision');
-        return;
+        return false;
     }
     //TODO brick worth more than 1 point?
     currentScore += brick.score;
     //TODO redirect ball
-    if(Math.abs(ball.positionX - brick.positionX) < ((brick.width + ball.width)/2)){
+    
+    console.log('brickCollision : ball.positionX - brick.positionX ',
+        Math.abs(ball.positionX - brick.positionX),
+        'brick.width + ball.width/2 ',
+        ((brick.width + ball.width)/2)
+    );
+    if(Math.abs(ball.positionX - brick.positionX) < ((brick.width)/2)){
         //redirect Y
-        ball.velocityY = (-1 * ball.velocityY);
+        ball.velocityY = newY;
+        console.log('brickCollision : YRedirect ball.velocityY ',ball.velocityY);
     }
     else{
         //redirect X
-        ball.velocityX = (-1 *ball.velocityX);
+        ball.velocityX = newX;
+        console.log('brickCollision : XRedirect ball.velocityX ',ball.velocityX);
     }
-
+    
+    console.log('brickCollision :  ball.positionX ',ball.positionX, 'ball.positionY',ball.positionY);
+    console.log('brickCollision :  brick.positionX ',ball.positionX, 'brick.positionY',ball.positionY);
     brick.setActive(false);
     console.log('brickCollision : score ',currentScore);
+    return true;
 }
 
 var activateAndPositionBricks = function(){
@@ -336,7 +345,9 @@ var onUpdate = function(deltaTime){
 
 
     //ball/brick collisions
-    bricks.forEach(brick => brickCollision(brick))
+    var newXVelo = (-1 * ball.velocityX);
+    var newYVelo = (-1 * ball.velocityY);
+    bricks.forEach(brick => brickCollision(brick,newXVelo,newYVelo));
 
     //ball/paddle collision
     if(ball.active){
