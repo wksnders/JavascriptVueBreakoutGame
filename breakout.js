@@ -490,6 +490,7 @@ var onGameStart = function(){
 var onInitialize = function(config = {}){
     //game settings
     highScore = config.highScore || 0;
+    victoryScore = config.victoryScore || 25
 
     //bricks
     
