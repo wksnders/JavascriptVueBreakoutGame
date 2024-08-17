@@ -254,7 +254,7 @@ var onUpdate = function(deltaTime){
 
     if(isBallOffScreen){
         lives -= 1;
-        if(lives <= 0){
+        if(lives <= 0 || (currentScore >= victoryScore)){
             gameOver();
         }
         else{
@@ -490,7 +490,7 @@ var onGameStart = function(){
 var onInitialize = function(config = {}){
     //game settings
     highScore = config.highScore || 0;
-    victoryScore = config.victoryScore || 25
+    victoryScore = config.victoryScore || 0;//create bricks handles this
 
     //bricks
     
