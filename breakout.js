@@ -410,8 +410,8 @@ function drawGameOver() {
         drawText(
             'GAME OVER',
             (canvasWidth / 2),
-            (canvasHeight / 2) - 40,
-            '30px serif'
+            (canvasHeight / 2) - 30,
+            '40px serif'
         );
         drawText(
             'Score : '.concat((currentScore || 0)),
@@ -424,6 +424,8 @@ function drawGameOver() {
 
 var drawText = function(text,xPos,yPos, font = '18px serif'){
     context.font = font;
+    context.textAlign = 'center';
+    context.textBaseline = 'middle'
     context.fillStyle = '#FFF';
     context.fillText(text, xPos, yPos);
 }
@@ -460,9 +462,9 @@ var vsyncLoop = function (time) {
     drawBall();
 
 
-    drawText('Score : '.concat((currentScore || 0)), 10,20);
-    drawText('Lives : '.concat((lives || 0)), 10,40);
-    drawText('High Score : '.concat((highScore || 0)), canvasWidth - 160,20);
+    drawText('Score : '.concat((currentScore || 0)), 50,15);
+    drawText('Lives : '.concat((lives || 0)), 50,35);
+    drawText('High Score : '.concat((highScore || 0)), canvasWidth - 100,20);
 };
 
 
