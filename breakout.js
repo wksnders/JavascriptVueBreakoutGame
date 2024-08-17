@@ -147,6 +147,7 @@ var gameOver = function(){
     //TODO show game over screen or victory screen
     if(currentScore > victoryScore){
         //victory screen
+
     }
     else{
         //you lose!
@@ -397,6 +398,12 @@ var drawBall = function(){
     }
 }
 
+var drawText = function(text,xPos,yPos){
+    context.font = "24px serif";
+    context.fillStyle = '#FFF';
+    context.fillText(text, xPos, yPos);
+}
+
 //rendering loop
 var lastTime = 0;
 //time is ms since landed on page  (float)
@@ -420,6 +427,8 @@ var vsyncLoop = function (time) {
     drawBall();
 
     drawBricks();
+
+    drawText('Score : '.concat((currentScore || 0)), 10,30);
 };
 
 
