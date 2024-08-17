@@ -399,7 +399,8 @@ function drawGameOver() {
         drawText(
             'You Win!',
             (canvasWidth / 2),
-            (canvasHeight / 2) - 30
+            (canvasHeight / 2) - 30,
+            '40px serif'
         );
         drawText(
             'Score : '.concat((currentScore || 0)),
