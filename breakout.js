@@ -21,12 +21,29 @@ var context = canvas.getContext('2d');
 var currentScore;
 var victoryScore;
 
+
+class GameStateEnum {
+    // Private Fields
+    static #_none = 0;
+    static #_newLife = 1;
+    static #_ballMoving = 2;
+    static #_ballOffScreen = 3;
+    static #_gameOverLost = 4;
+    static #_gameOverWon = 5;
+    static #_paused = 6;
+
+    // Accessors for "get" functions only (no "set" functions)
+    static get none() { return this.#_none; }
+    static get newLife() { return this.#_newLife; }
+    static get ballMoving() { return this.#_ballMoving; }
+    static get ballOffScreen() { return this.#_ballOffScreen; }
+    static get gameOverLost() { return this.#_gameOverLost; }
+    static get gameOverWon() { return this.#_gameOverWon; }
+    static get paused() { return this.#_paused; }
+}
 //game state
-var isPaused = false;
-var isGameOver = false;
-var isBallOffScreen = false;
-var isBallStopped = true;
-var isBallStartMove = false;
+var currentGameState = GameStateEnum.none;
+
 
 //paddle
 var paddleTargetXPos = 0;
@@ -82,10 +99,11 @@ canvas.addEventListener('mousemove', updateMousePos, false);
 canvas.addEventListener("mouseenter", () => isMouseUsed = true, false);
 canvas.addEventListener("mouseleave", () => isMouseUsed = false, false);
 canvas.addEventListener("click", () => {
-    if(isBallStopped){
-        isBallStartMove = true;
+    if(currentGameState == GameStateEnum.newLife){
+        currentGameState = GameStateEnum.ballMoving;
+        ball.velocityX = paddle.velocityX;
+        ball.velocityY = ballStartVelocityY;
     }
-    console.log('ball Start : isBallStartMove', isBallStartMove);
 });
 
 //represents a sprite to be rendered on screen
@@ -129,7 +147,7 @@ class Sprite {//cap -> need to invoke it with keyword new
     }
 }
 
-class brickSprite extends Sprite{
+class BrickSprite extends Sprite{
     constructor(id,height,width,score,row,col){
         super(id,height,width)
         this.score = score;
@@ -139,8 +157,13 @@ class brickSprite extends Sprite{
 }
 
 var gameOver = function(){
-    isPaused = true;
-    isGameOver = true;
+    
+    if (currentScore >= victoryScore) {
+        currentGameState = GameStateEnum.gameOverWon;
+    }
+    else{
+        currentGameState = GameStateEnum.gameOverLost;
+    }
     if(currentScore > highScore){
         highScore = currentScore;
     }
@@ -157,7 +180,7 @@ var createBricks = function(){
         for (let col = 0; col < 5; col++) {
             victoryScore += brickScore;
             count++;
-            var brick = new brickSprite(
+            var brick = new BrickSprite(
                 'brick'.concat(count),
                 brickHeight,
                 brickWidth,
@@ -237,7 +260,11 @@ var testCollision = function(sprite1,sprite2){
 }
 
 var onUpdate = function(deltaTime){
-    if(isPaused){
+    if(
+            currentGameState != GameStateEnum.ballMoving &&
+            currentGameState != GameStateEnum.newLife
+    ){
+        console.log('onUpdate : returned early, GameState : ',currentGameState);
         return;
     }
 
@@ -246,13 +273,10 @@ var onUpdate = function(deltaTime){
     console.log('onUpdate : ball.positionY',ball.positionY);
 
     if(ball.positionY > canvasHeight){
-        isBallOffScreen = true;
-    }
-    else{
-        isBallOffScreen = false;
+        currentGameState = GameStateEnum.ballOffScreen;
     }
 
-    if(isBallOffScreen){
+    if(currentGameState == GameStateEnum.ballOffScreen){
         lives -= 1;
         if(lives <= 0){
             gameOver();
@@ -261,10 +285,9 @@ var onUpdate = function(deltaTime){
             //reset ball for new life
             ball.velocityX = 0;
             ball.velocityY = 0;
-            ball.setPosition(ballStartX,ballStartY);
-            //reset bools
-            isBallStartMove = false;
-            isBallStopped = true;
+            ball.setPosition(paddle.positionX,ballStartY);
+            //new gamestate
+            currentGameState = GameStateEnum.newLife;
         }
         paddle.velocityX = 0;
         console.log('onUpdate : lost a life');
@@ -294,15 +317,9 @@ var onUpdate = function(deltaTime){
     }
 
 
-    //if ball is stopped (new life) then give it initial velocity
-    if(isBallStopped){
+    
+    if(currentGameState == GameStateEnum.newLife){
         ball.positionX = paddle.positionX;//match ball and paddle
-        if(isBallStartMove){
-            ball.velocityX = paddle.velocityX;
-            ball.velocityY = ballStartVelocityY;
-            isBallStopped = false;
-            isBallStartMove = false;
-        }
     }
 
     
@@ -453,8 +470,10 @@ var vsyncLoop = function (time) {
 
     
     drawBricks();
-
-    if(isGameOver){
+    if(
+        currentGameState == GameStateEnum.gameOverLost||
+        currentGameState == GameStateEnum.gameOverWon
+    ){
         console.log('vsyncLoop : Game Over');
         drawGameOver();
         return;
@@ -464,7 +483,7 @@ var vsyncLoop = function (time) {
 
     drawBall();
 
-
+    //TODO config options for these
     drawText('Score : '.concat((currentScore || 0)), 50,15);
     drawText('Lives : '.concat((lives || 0)), 50,35);
     drawText('High Score : '.concat((highScore || 0)), canvasWidth - 100,20);
@@ -472,22 +491,22 @@ var vsyncLoop = function (time) {
 
 
 //called whenever the game is started or restarted
-var onGameStart = function(){
-    
-    isGameOver = false;
-    isPaused = false;
-    currentScore = 0;
-    lives = 3;
+var onGameStart = function(gameSettings = {}){
+    currentGameState = GameStateEnum.newLife;
+    currentScore = gameSettings.currentScore || 0;
+    lives = gameSettings.lives || 3;
     //activate and position bricks
     activateAndPositionBricks();
     //position paddle
-    paddle.setPosition(paddleStartX,paddleStartY);
+    paddle.setPosition(
+        paddleStartX,
+        paddleStartY
+    );
     //position ball
-    ball.setPosition(ballStartX,ballStartY);
-
-    //set ball to not move yet
-    isBallStopped = true;
-    isBallStartMove = false;
+    ball.setPosition(
+        ballStartX,
+        ballStartY
+    );
 }
 
 //called with config settings
