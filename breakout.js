@@ -212,20 +212,21 @@ var brickCollision = function(brick,newX,newY){
     //TODO brick worth more than 1 point?
     currentScore += brick.score;
     
-    console.log('brickCollision : ball.positionX - brick.positionX ',
-        Math.abs(ball.positionX - brick.positionX),
-        'brick.width + ball.width/2 ',
-        ((brick.width + ball.width)/2)
-    );
-    if(Math.abs(ball.positionX - brick.positionX) < ((brick.width)/2)){
-        //redirect Y
-        ball.velocityY = newY;
-        console.log('brickCollision : YRedirect ball.velocityY ',ball.velocityY);
-    }
-    else{
-        //redirect X
+    // Calculate the distance to the closest edge of the brick
+    const distanceX = Math.abs(ball.positionX - brick.positionX);
+    const distanceY = Math.abs(ball.positionY - brick.positionY);
+
+    // Calculate the overlap in both directions
+    const overlapX = (brick.width / 2 + ball.width / 2) - distanceX;
+    const overlapY = (brick.height / 2 + ball.height / 2) - distanceY;
+
+    // Determine which side of the brick the ball hit and update velocity
+    if (overlapX < overlapY) {
+        // Ball hit the left or right side of the brick
         ball.velocityX = newX;
-        console.log('brickCollision : XRedirect ball.velocityX ',ball.velocityX);
+    } else {
+        // Ball hit the top or bottom of the brick
+        ball.velocityY = newY;
     }
     
     console.log('brickCollision :  ball.positionX ',ball.positionX, 'ball.positionY',ball.positionY);
@@ -332,6 +333,7 @@ var onUpdate = function(deltaTime){
     else if(paddle.positionX > paddleXMax){
         paddle.positionX = paddleXMax;
     }
+
     //dont move past mouse
     /*if(isMouseUsed
         && paddle.positionX
