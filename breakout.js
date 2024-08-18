@@ -78,8 +78,7 @@ var paddleSpeed;
 
 //ball settings
 const ballStartX = canvasWidth/2;
-const ballStartY = 333;
-const ballSize = 40;
+var ballStartY = (paddleStartY - (paddleHeight/2)) - 1;
 const ballStartVelocityY = 100;
 var ball;
 
@@ -536,9 +535,12 @@ var onInitialize = function(config = {}){
     paddleXMin = (paddle.width/2) + paddleMovementPadding;
     paddleXMax = canvasWidth - paddleXMin;
     paddleSpeed = config.paddleSpeed || 200;
+    
+    const ballSize = config.ballSize || 40;
 
     //create ball sprite
     ball = new Sprite('ball',ballSize,ballSize);
+    ballStartY =((paddleStartY - (paddleHeight/2)) - 1 )- ballSize/2;
 
     
     //screen bounds
@@ -559,6 +561,12 @@ var onInitialize = function(config = {}){
 //or parse csv, colnames : values
 onInitialize({brickHeight : 20});
 
+/*
+fetch('./bricksjson/testbrickfile.json')
+    .then((response) => response.json())
+    .then((json) => console.log(json));
+    */
+
 //call it the first time
 requestAnimationFrame(vsyncLoop);
 //updates state of the page
@@ -569,15 +577,18 @@ createApp({
     setup() {
         const brickHeight = ref(20)
         const brickWidth = ref(80)//observability, update template dependant on it.
+        const ballSize = ref(40)
         const submitForm = function () {
             onInitialize({
                 brickHeight : brickHeight.value,
                 brickWidth : brickWidth.value,
+                ballSize : ballSize.value
             });
         }
         return {
             brickHeight,
             brickWidth,
+            ballSize,
             submitForm
         }
     }
