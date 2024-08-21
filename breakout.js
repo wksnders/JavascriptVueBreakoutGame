@@ -364,7 +364,6 @@ var onUpdate = function(deltaTime){
         ball.velocityY = -ball.velocityY;
     }
 
-
     //ball/brick collisions
     var newXVelo = (-1 * ball.velocityX);
     var newYVelo = (-1 * ball.velocityY);
@@ -378,16 +377,17 @@ var onUpdate = function(deltaTime){
     if(ball.active){
         var colliding = testCollision(paddle,ball);
         if(colliding && ball.positionY <= paddle.positionY){
-
+            const speedUpFactorY = 1;
+            const speedUpFactorX = paddle.velocityX > 0 ? 1 : -1;
             ball.positionY = ballStartY;
-            ball.velocityY = -ball.velocityY; //add speedup factor
+            ball.velocityY = -1 * (ball.velocityY + speedUpFactorY); //add speedup factor
+            ball.velocityX += speedUpFactorX;
         }
     }
     
     console.log('onUpdate : collision ball/paddle',
         testCollision(ball,paddle)
     );
-
 }
 
 var drawBoxSprite = function(sprite,color){
@@ -572,8 +572,8 @@ onInitialize({brickHeight : 20});
 /*
 fetch('./bricksjson/testbrickfile.json')
     .then((response) => response.json())
-    .then((json) => console.log(json));
-    */
+    .then((json) => console.log(json))*/
+    
 
 //call it the first time
 requestAnimationFrame(vsyncLoop);
