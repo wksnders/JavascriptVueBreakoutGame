@@ -334,9 +334,20 @@ var onUpdate = function(deltaTime){
     }
 
     //dont move past mouse
-    /*if(isMouseUsed
-        && paddle.positionX
-    )*/
+    if(isMouseUsed){
+        if (
+            paddle.positionX > paddleTargetXPos && 
+            paddle.velocityX > 0
+        ) {
+            paddle.positionX = paddleTargetXPos;
+        }
+        else if(
+            paddle.positionX < paddleTargetXPos && 
+            paddle.velocityX < 0
+        ){
+
+        }
+    }
 
 
     //dont let ball go off screen at top or sides
@@ -517,7 +528,6 @@ var onInitialize = function(config = {}){
     victoryScore = config.victoryScore || 0;//create bricks handles this
 
     //bricks
-    
     brickHeight = config.brickHeight || 20;
     brickStartY = 50 + (brickHeight/2);
     brickWidth = config.brickWidth || 80;
@@ -552,9 +562,7 @@ var onInitialize = function(config = {}){
     
     createBricks();
 
-    onGameStart();
-
-    
+    onGameStart(config.gameSettings || {});
 }
 
 //load from json file
